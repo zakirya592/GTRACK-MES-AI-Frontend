@@ -14,6 +14,14 @@ code {
     monospace;
 }
 
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 .ql-editor img {
   max-width: 220px;
   max-height: 170px;

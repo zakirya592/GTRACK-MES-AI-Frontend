@@ -121,7 +121,7 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      <div className="relative p-4 border-t border-slate-700 shrink-0">
+      <div className="relative p-2 border-t border-slate-700 shrink-0">
         {isProfileMenuOpen && (
           <div className="absolute bottom-[calc(100%-0.5rem)] left-4 right-4 mb-2 overflow-hidden rounded-xl border border-slate-600 bg-slate-800 shadow-2xl">
             <button onClick={() => { setIsProfileMenuOpen(false); navigate('/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-200 hover:bg-slate-700">
