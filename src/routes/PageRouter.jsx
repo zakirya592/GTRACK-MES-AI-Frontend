@@ -5,6 +5,7 @@ import Alert from '../Pages/Alerts/Alert';
 import Dashboard from '../Pages/Dashboard/Dashboard';
 import LiveView from '../Pages/LiveView/LiveView';
 import CameraDetail from '../Pages/LiveView/CameraDetail';
+import Events from '../Pages/Events/Events';
 
 function PageRouter() {
   return (
@@ -14,6 +15,7 @@ function PageRouter() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/Alert" element={<Alert />} />
         <Route path="/live-view" element={<LiveView />} />
+        <Route path="/Events" element={<Events />} />
         <Route path="/camera/:cameraId" element={<CameraDetail />} />
       </Routes>
       </div>

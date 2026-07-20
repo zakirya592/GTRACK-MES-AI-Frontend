@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play, Pause } from "lucide-react";
 
 function LiveView() {
   const navigate = useNavigate();
-  const [selectedCamera, setSelectedCamera] = useState(null);
+  // const [Cameras, setCameras] = useState([]);
+
+  useEffect(() => {
+    // loadCameras();
+  }, []);
 
   const cameras = [
     {

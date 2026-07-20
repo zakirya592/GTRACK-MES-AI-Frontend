@@ -37,7 +37,6 @@ function Alert() {
   return (
     <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100 w-full">
       <div className="flex-1 p-8">
-
         {/* Critical Alert Card */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -51,60 +50,85 @@ function Alert() {
             </div>
             <div>
               <span className="font-bold text-lg">CRITICAL SAFETY ALERT</span>
-              <p className="text-red-100 text-sm">No Helmet Detected - Immediate Action Required</p>
+              <p className="text-red-100 text-sm">
+                No Helmet Detected - Immediate Action Required
+              </p>
             </div>
           </div>
 
           <div className="bg-white rounded-b-2xl shadow-xl p-6 flex flex-col lg:flex-row gap-6">
             <div className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <div className="flex items-center mb-2">
+              {/* grid grid-cols-1 md:grid-cols-2 */}
+              <div className=" gap-6">
+                <div className="bg-slate-50 p-4 rounded-xl flex flex-row justify-between my-1">
+                  <div className="flex items-center ">
                     <Camera className="w-5 h-5 text-slate-400 mr-2" />
                     <p className="text-slate-500 text-sm font-medium">Camera</p>
                   </div>
-                  <p className="font-bold text-slate-800 text-lg">IP Camera 2</p>
+                  <p className="font-bold text-slate-800 text-lg">
+                    IP Camera 2
+                  </p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <div className="flex items-center mb-2">
+                <div className="bg-slate-50 p-4 rounded-xl  flex flex-row justify-between my-1">
+                  <div className="flex items-center ">
                     <MapPin className="w-5 h-5 text-slate-400 mr-2" />
-                    <p className="text-slate-500 text-sm font-medium">Location</p>
+                    <p className="text-slate-500 text-sm font-medium">
+                      Location
+                    </p>
                   </div>
-                  <p className="font-bold text-slate-800 text-lg">Production Area 1</p>
+                  <p className="font-bold text-slate-800 text-lg">
+                    Production Area 1
+                  </p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <div className="flex items-center mb-2">
+                <div className="bg-slate-50 p-4 rounded-xl my-1 flex flex-row justify-between ">
+                  <div className="flex items-center ">
                     <Clock className="w-5 h-5 text-slate-400 mr-2" />
                     <p className="text-slate-500 text-sm font-medium">Time</p>
                   </div>
-                  <p className="font-bold text-slate-800 text-lg">2025-05-21 10:30:18</p>
+                  <p className="font-bold text-slate-800 text-lg">
+                    2025-05-21 10:30:18
+                  </p>
                 </div>
-                <div className="bg-slate-50 p-4 rounded-xl">
-                  <div className="flex items-center mb-2">
+                <div className="bg-slate-50 p-4 rounded-xl flex flex-row justify-between my-1">
+                  <div className="flex items-center ">
                     <AlertTriangle className="w-5 h-5 text-slate-400 mr-2" />
                     <p className="text-slate-500 text-sm font-medium">Event</p>
                   </div>
-                  <p className="font-bold text-slate-800 text-lg">No Helmet Detected</p>
+                  <p className="font-bold text-slate-800 text-lg">
+                    No Helmet Detected
+                  </p>
                 </div>
               </div>
-              <div className="bg-linear-to-r from-slate-50 to-slate-100 p-4 rounded-xl">
-                <p className="text-slate-500 text-sm font-medium mb-1">AI Confidence Score</p>
+              <div className="bg-linear-to-r from-slate-50 to-slate-100 p-4 rounded-xl flex flex-row justify-between my-1">
+                <p className="text-slate-500 text-sm font-medium ">
+                  AI Confidence Score
+                </p>
                 <div className="flex items-center gap-3">
-                  <p className="font-bold text-3xl text-slate-800">96%</p>
-                  <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-linear-to-r from-green-400 to-green-500 rounded-full" style={{ width: '96%' }}></div>
-                  </div>
+                  <p className="font-bold text-2xl text-slate-800">96%</p>
+                  {/* <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-linear-to-r from-green-400 to-green-500 rounded-full"
+                      style={{ width: "96%" }}
+                    ></div>
+                  </div> */}
                 </div>
               </div>
             </div>
 
-            <div className="lg:w-80">
-              <div className="w-full h-80 bg-linear-to-br from-slate-100 to-slate-200 rounded-2xl border-4 border-red-400 flex items-center justify-center shadow-inner overflow-hidden">
-                <div className="text-center">
-                  <User className="w-20 h-20 text-slate-400 mx-auto mb-2" />
-                  <p className="text-slate-400 text-sm font-medium">Detection Frame</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:w-[55%]">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="w-full h-80 bg-linear-to-br from-slate-100 to-slate-200 rounded-2xl border-4 border-red-400 flex items-center justify-center shadow-inner overflow-hidden"
+                >
+                  <div className="text-center">
+                    <User className="w-20 h-20 text-slate-400 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm font-medium">
+                      Detection Frame
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </motion.div>
@@ -117,7 +141,9 @@ function Alert() {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-slate-800">Recent Alerts</h2>
-            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">View All →</button>
+            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
+              View All →
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -143,7 +169,10 @@ function Alert() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {recentAlerts.map((alert, index) => (
-                  <tr key={index} className="hover:bg-slate-50 transition-colors">
+                  <tr
+                    key={index}
+                    className="hover:bg-slate-50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">
                       {alert.time}
                     </td>
@@ -154,18 +183,22 @@ function Alert() {
                       {alert.event}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        alert.statusColor === 'red' 
-                          ? 'bg-red-100 text-red-700' 
-                          : alert.statusColor === 'green'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
+                      <span
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          alert.statusColor === "red"
+                            ? "bg-red-100 text-red-700"
+                            : alert.statusColor === "green"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
                         {alert.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">View Details</button>
+                      <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        View Details
+                      </button>
                     </td>
                   </tr>
                 ))}
