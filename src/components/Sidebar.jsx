@@ -5,7 +5,9 @@ import {
   Calendar, 
   AlertTriangle, 
   Monitor, 
-  FileText, 
+  FileText,
+  Mail,
+  MessageCircle,
   Settings,
   LogOut,
   UserRound
@@ -40,6 +42,16 @@ const Sidebar = () => {
       label: "Alerts",
       path: "/Alert",
       // notification: "2"
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      path: "/email",
+    },
+    {
+      icon: MessageCircle,
+      label: "WhatsApp",
+      path: "/whatsapp",
     },
     {
       icon: Monitor,

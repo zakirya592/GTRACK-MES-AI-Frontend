@@ -10,6 +10,8 @@ import Devices from '../Pages/Devices/Devices';
 import Reports from '../Pages/Reports/Reports';
 import Settings from '../Pages/Settings/Settings';
 import Login from '../Pages/Login/Login';
+import Email from '../Pages/Email/Email';
+import WhatsApp from '../Pages/WhatsApp/WhatsApp';
 
 function PageRouter() {
   return (
@@ -25,6 +27,8 @@ function PageRouter() {
         <Route path="/devices" element={<Devices />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/email" element={<Email />} />
+        <Route path="/whatsapp" element={<WhatsApp />} />
         <Route path="/camera/:cameraId" element={<CameraDetail />} />
       </Routes>
     </div>
