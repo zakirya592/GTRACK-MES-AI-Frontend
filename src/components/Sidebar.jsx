@@ -1,23 +1,29 @@
 import { 
+  ChevronUp,
   LayoutDashboard, 
   Eye, 
   Calendar, 
   AlertTriangle, 
   Monitor, 
   FileText, 
-  Settings 
+  Settings,
+  LogOut,
+  UserRound
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   
   const menuItems = [
     {
       icon: LayoutDashboard,
       label: "Dashboard",
-      path: "/",
+      path: "/Dashboard",
     },
     {
       icon: Eye,
@@ -103,18 +109,27 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      <div className="p-4 border-t border-slate-700 shrink-0">
-        <div className="bg-slate-700/50 rounded-xl p-4">
-          <div className="flex items-center gap-3">
+      <div className="relative p-4 border-t border-slate-700 shrink-0">
+        {isProfileMenuOpen && (
+          <div className="absolute bottom-[calc(100%-0.5rem)] left-4 right-4 mb-2 overflow-hidden rounded-xl border border-slate-600 bg-slate-800 shadow-2xl">
+            <button onClick={() => { setIsProfileMenuOpen(false); navigate('/settings'); }} className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-slate-200 hover:bg-slate-700">
+              <UserRound className="h-4 w-4" /> Profile & Settings
+            </button>
+            <button onClick={() => navigate('/')} className="flex w-full items-center gap-3 border-t border-slate-700 px-4 py-3 text-left text-sm font-medium text-red-400 hover:bg-slate-700">
+              <LogOut className="h-4 w-4" /> Sign Out
+            </button>
+          </div>
+        )}
+        <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} aria-expanded={isProfileMenuOpen} className="flex w-full items-center gap-3 rounded-xl bg-slate-700/50 p-4 text-left transition-colors hover:bg-slate-700">
             <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold">A</span>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-white font-medium text-sm">Admin User</p>
               <p className="text-slate-400 text-xs">System Administrator</p>
             </div>
-          </div>
-        </div>
+            <ChevronUp className={`h-4 w-4 text-slate-400 transition-transform ${isProfileMenuOpen ? '' : 'rotate-180'}`} />
+        </button>
       </div>
     </div>
   );

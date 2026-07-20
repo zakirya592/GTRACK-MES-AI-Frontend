@@ -6,19 +6,28 @@ import Dashboard from '../Pages/Dashboard/Dashboard';
 import LiveView from '../Pages/LiveView/LiveView';
 import CameraDetail from '../Pages/LiveView/CameraDetail';
 import Events from '../Pages/Events/Events';
+import Devices from '../Pages/Devices/Devices';
+import Reports from '../Pages/Reports/Reports';
+import Settings from '../Pages/Settings/Settings';
+import Login from '../Pages/Login/Login';
 
 function PageRouter() {
   return (
-      <div className="flex-1 overflow-y-auto">
-        <Routes>
+    <div className="flex-1 overflow-y-auto">
+      <Routes>
         {/* Public Route */}
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Login />} />
+        {/* <Route path="/login" element={<Login />} /> */}
+        <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Alert" element={<Alert />} />
         <Route path="/live-view" element={<LiveView />} />
         <Route path="/Events" element={<Events />} />
+        <Route path="/devices" element={<Devices />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/camera/:cameraId" element={<CameraDetail />} />
       </Routes>
-      </div>
+    </div>
   );
 }
 
