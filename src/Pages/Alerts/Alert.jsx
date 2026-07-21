@@ -1,137 +1,49 @@
 import React from "react";
-import { AlertTriangle, User, Clock, MapPin, Camera, CheckCircle, XCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertTriangle, Clock, Camera, CheckCircle, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { Spinner, Button, Card } from "@nextui-org/react";
+import newRequest from "../../utils/userRequest";
+import { AiOutlineEye } from "react-icons/ai";
 
 function Alert() {
-  const recentAlerts = [
-    {
-      time: "10:30:18",
-      camera: "IP Camera 2",
-      event: "No Helmet Detected",
-      status: "New",
-      statusColor: "red"
-    },
-    {
-      time: "10:28:42",
-      camera: "IP Camera 1",
-      event: "Helmet Detected",
-      status: "Cleared",
-      statusColor: "green"
-    },
-    {
-      time: "10:25:15",
-      camera: "IP Camera 3",
-      event: "Unauthorized Access",
-      status: "New",
-      statusColor: "red"
-    },
-    {
-      time: "10:20:30",
-      camera: "IP Camera 1",
-      event: "Safety Violation",
-      status: "Resolved",
-      statusColor: "yellow"
-    }
-  ];
+  const navigate = useNavigate();
+
+  const getAlerts = async () => {
+    const res = await newRequest.get("/detection-alerts");
+    return res.data.data;
+  };
+
+const { data: RecentAlerts = [], isLoading, isError } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: getAlerts
+  });
+
+  const totalAlerts = RecentAlerts.length;
 
   return (
-    <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100 w-full">
+    <div className="flex min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100 w-full">
       <div className="flex-1 p-8">
-        {/* Critical Alert Card */}
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <div className="bg-linear-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-t-2xl flex items-center shadow-lg">
-            <div className="bg-white/20 p-2 rounded-lg mr-4">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <span className="font-bold text-lg">CRITICAL SAFETY ALERT</span>
-              <p className="text-red-100 text-sm">
-                No Helmet Detected - Immediate Action Required
-              </p>
+              <h1 className="text-4xl font-bold bg-linear-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-2">
+                Alert Management
+              </h1>
+              <p className="text-slate-500 text-lg">Monitor and manage safety alerts in real-time</p>
             </div>
-          </div>
-
-          <div className="bg-white rounded-b-2xl shadow-xl p-6 flex flex-col lg:flex-row gap-6">
-            <div className="flex-1">
-              {/* grid grid-cols-1 md:grid-cols-2 */}
-              <div className=" gap-6">
-                <div className="bg-slate-50 p-4 rounded-xl flex flex-row justify-between my-1">
-                  <div className="flex items-center ">
-                    <Camera className="w-5 h-5 text-slate-400 mr-2" />
-                    <p className="text-slate-500 text-sm font-medium">Camera</p>
-                  </div>
-                  <p className="font-bold text-slate-800 text-lg">
-                    IP Camera 2
-                  </p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl  flex flex-row justify-between my-1">
-                  <div className="flex items-center ">
-                    <MapPin className="w-5 h-5 text-slate-400 mr-2" />
-                    <p className="text-slate-500 text-sm font-medium">
-                      Location
-                    </p>
-                  </div>
-                  <p className="font-bold text-slate-800 text-lg">
-                    Production Area 1
-                  </p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl my-1 flex flex-row justify-between ">
-                  <div className="flex items-center ">
-                    <Clock className="w-5 h-5 text-slate-400 mr-2" />
-                    <p className="text-slate-500 text-sm font-medium">Time</p>
-                  </div>
-                  <p className="font-bold text-slate-800 text-lg">
-                    2025-05-21 10:30:18
-                  </p>
-                </div>
-                <div className="bg-slate-50 p-4 rounded-xl flex flex-row justify-between my-1">
-                  <div className="flex items-center ">
-                    <AlertTriangle className="w-5 h-5 text-slate-400 mr-2" />
-                    <p className="text-slate-500 text-sm font-medium">Event</p>
-                  </div>
-                  <p className="font-bold text-slate-800 text-lg">
-                    No Helmet Detected
-                  </p>
-                </div>
-              </div>
-              <div className="bg-linear-to-r from-slate-50 to-slate-100 p-4 rounded-xl flex flex-row justify-between my-1">
-                <p className="text-slate-500 text-sm font-medium ">
-                  AI Confidence Score
-                </p>
-                <div className="flex items-center gap-3">
-                  <p className="font-bold text-2xl text-slate-800">96%</p>
-                  {/* <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-linear-to-r from-green-400 to-green-500 rounded-full"
-                      style={{ width: "96%" }}
-                    ></div>
-                  </div> */}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:w-[55%]">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="w-full h-80 bg-linear-to-br from-slate-100 to-slate-200 rounded-2xl border-4 border-red-400 flex items-center justify-center shadow-inner overflow-hidden"
-                >
-                  <div className="text-center">
-                    <User className="w-20 h-20 text-slate-400 mx-auto mb-2" />
-                    <p className="text-slate-400 text-sm font-medium">
-                      Detection Frame
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+         
           </div>
         </motion.div>
+
+       
 
         {/* Recent Alerts Section */}
         <motion.div
@@ -139,72 +51,127 @@ function Alert() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-800">Recent Alerts</h2>
-            <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-              View All →
-            </button>
-          </div>
+          <Card className="p-6 shadow-xl bg-white/80 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-800">Recent Alerts</h2>
+              <div className="bg-blue-100 px-4 py-2 rounded-full">
+                <span className="text-blue-700 font-bold">Total: {totalAlerts}</span>
+              </div>
+            </div>
 
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Time
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Camera
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Event
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {recentAlerts.map((alert, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">
-                      {alert.time}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                      {alert.camera}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                      {alert.event}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          alert.statusColor === "red"
-                            ? "bg-red-100 text-red-700"
-                            : alert.statusColor === "green"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {alert.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        View Details
-                      </button>
-                    </td>
+            <div className="overflow-x-auto rounded-xl border border-slate-200">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-linear-to-r from-slate-50 to-slate-100 border-b-2 border-slate-200">
+                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Time
+                    </th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Camera
+                    </th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Event
+                    </th>
+                    <th className="text-left px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="text-center px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                      Action
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center justify-center gap-4">
+                          <Spinner size="lg" color="default" className="text-slate-900" />
+                          <p className="text-slate-500 text-lg">Loading...</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : RecentAlerts.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-12 text-center">
+                        <div className="flex flex-col items-center justify-center gap-4">
+                          <AlertTriangle className="w-16 h-16 text-slate-300" />
+                          <p className="text-slate-500 text-lg">No alerts found</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    RecentAlerts.map((item, index) => (
+                      <tr 
+                        key={item.id} 
+                        className="border-b border-slate-100 hover:bg-linear-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 group"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white text-sm font-bold shadow-md">
+                            {index + 1}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            <span className="text-sm text-slate-700 font-medium">
+                              {new Date(item.time).toLocaleString()}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-blue-100 p-2 rounded-lg">
+                              <Camera className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <span className="text-sm text-slate-700 font-semibold">
+                              {item.camera}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-amber-500" />
+                            <span className="text-sm text-slate-700">
+                              {item.event}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div
+                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
+                              item.status === "New"
+                                ? "bg-linear-to-r from-red-100 to-red-200 text-red-700"
+                                : item.status === "Resolved"
+                                  ? "bg-linear-to-r from-green-100 to-emerald-200 text-green-700"
+                                  : "bg-linear-to-r from-amber-100 to-yellow-200 text-amber-700"
+                            }`}
+                          >
+                            {item.status === "New" && <XCircle className="w-3 h-3" />}
+                            {item.status === "Resolved" && <CheckCircle className="w-3 h-3" />}
+                            {item.status === "In Progress" && <Clock className="w-3 h-3" />}
+                            {item.status}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            className="bg-linear-to-r  transition-all duration-200 hover:scale-110"
+                            onPress={() => navigate(`/alert/${item.id}`, { state: { alertData: item } })}
+                          >
+                            <AiOutlineEye className="size-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </motion.div>
       </div>
     </div>

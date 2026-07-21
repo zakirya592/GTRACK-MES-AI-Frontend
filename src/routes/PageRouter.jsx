@@ -2,6 +2,7 @@
 import React from 'react'
 import { Route, Routes } from "react-router-dom";
 import Alert from '../Pages/Alerts/Alert';
+import AlertDetail from '../Pages/Alerts/AlertDetail';
 import Dashboard from '../Pages/Dashboard/Dashboard';
 import LiveView from '../Pages/LiveView/LiveView';
 import CameraDetail from '../Pages/LiveView/CameraDetail';
@@ -22,6 +23,7 @@ function PageRouter() {
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Alert" element={<Alert />} />
+        <Route path="/alert/:alertId" element={<AlertDetail />} />
         <Route path="/live-view" element={<LiveView />} />
         <Route path="/Events" element={<Events />} />
         <Route path="/devices" element={<Devices />} />
