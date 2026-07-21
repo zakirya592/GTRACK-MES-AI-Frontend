@@ -1,65 +1,34 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play, Pause } from "lucide-react";
+import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play } from "lucide-react";
+import { baseUrl } from "../../utils/config";
 
 function LiveView() {
   const navigate = useNavigate();
-  // const [Cameras, setCameras] = useState([]);
-
-  useEffect(() => {
-    // loadCameras();
-  }, []);
+  const [streamUnavailable, setStreamUnavailable] = useState(false);
 
   const cameras = [
     {
       id: 1,
       name: "Camera 1",
+      imagecamera: `${baseUrl}/live-detection-camera-1`,
       location: "Production Area 1",
       status: "online",
       lastUpdate: "2 min ago",
-      alerts: 0
+      alerts: 0,
+      ipaddress: "192.168.100.239",
     },
     {
       id: 2,
       name: "Camera 2",
+      imagecamera: `${baseUrl}/live-detection-camera-2`,
       location: "Production Area 2",
       status: "online",
       lastUpdate: "1 min ago",
-      alerts: 1
+      alerts: 1,
+      ipaddress: "192.168.100.240",
     },
-    {
-      id: 3,
-      name: "Camera 3",
-      location: "Warehouse",
-      status: "offline",
-      lastUpdate: "15 min ago",
-      alerts: 0
-    },
-    {
-      id: 4,
-      name: "Camera 4",
-      location: "Loading Dock",
-      status: "online",
-      lastUpdate: "30 sec ago",
-      alerts: 0
-    },
-    {
-      id: 5,
-      name: "Camera 5",
-      location: "Main Entrance",
-      status: "online",
-      lastUpdate: "1 min ago",
-      alerts: 2
-    },
-    {
-      id: 6,
-      name: "Camera 6",
-      location: "Parking Lot",
-      status: "online",
-      lastUpdate: "45 sec ago",
-      alerts: 0
-    }
   ];
 
   return (
@@ -121,6 +90,41 @@ function LiveView() {
           </div>
         </motion.div>
 
+        {/* The backend returns an MJPEG stream, so it is rendered directly as an image. */}
+        {/* <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="mb-8 overflow-hidden rounded-2xl bg-slate-950 shadow-lg"
+        >
+          <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-3 w-3 rounded-full bg-red-500">
+                <span className="h-3 w-3 animate-ping rounded-full bg-red-400 opacity-75" />
+              </span>
+              <div>
+                <h2 className="font-semibold text-white">Live Detection Feed</h2>
+                <p className="text-sm text-slate-400">AI camera detections in real time</p>
+              </div>
+            </div>
+            <span className="rounded-full bg-red-500/15 px-3 py-1 text-xs font-semibold text-red-300">LIVE</span>
+          </div>
+          <div className="flex min-h-64 items-center justify-center bg-black">
+            {streamUnavailable ? (
+              <p className="p-8 text-center text-sm text-slate-400">
+                Unable to load the live stream. Confirm that the API is running on port 5051.
+              </p>
+            ) : (
+              <img
+                src={`${baseUrl}/live-detection`}
+                alt="Live AI camera detection stream"
+                className="max-h-[520px] w-full object-contain"
+                onError={() => setStreamUnavailable(true)}
+              />
+            )}
+          </div>
+        </motion.section> */}
+
         {/* Camera Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -141,7 +145,12 @@ function LiveView() {
               <div className={`relative h-48 ${camera.status === 'offline' ? 'bg-slate-200' : 'bg-linear-to-br from-slate-100 to-slate-200'} flex items-center justify-center`}>
                 {camera.status === 'online' ? (
                   <>
-                    <Camera className="w-16 h-16 text-slate-400" />
+                    {/* <Camera className="w-16 h-16 text-slate-400" /> */}
+                    <img
+                      src={camera.imagecamera}
+                      alt="Live AI camera detection stream"
+                      className="max-h-[520px] w-full object-contain"
+                    />
                     <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                       LIVE
@@ -167,15 +176,14 @@ function LiveView() {
               <div className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-slate-800">{camera.name}</h3>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                    camera.status === 'online' 
-                      ? 'bg-green-100 text-green-700' 
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${camera.status === 'online'
+                      ? 'bg-green-100 text-green-700'
                       : 'bg-red-100 text-red-700'
-                  }`}>
+                    }`}>
                     {camera.status}
                   </span>
                 </div>
-                
+
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-slate-600">
                     <MapPin className="w-4 h-4 mr-2 text-slate-400" />
@@ -188,8 +196,8 @@ function LiveView() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button 
-                    onClick={() => navigate(`/camera/${camera.id}`)}
+                  <button
+                    onClick={() => navigate(`/camera/${camera.id}`, { state: { ipAddress: camera.ipaddress } })}
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm"
                   >
                     <Play className="w-4 h-4" />
