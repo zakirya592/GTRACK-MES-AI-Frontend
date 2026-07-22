@@ -256,112 +256,121 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
                       ACTION
                     </Table.Column>
                   </Table.Header>
-                  <Table.Body
-                    isLoading={isLoading}
-                    loadingContent={
-                      <div className="flex flex-col items-center gap-4 py-10">
-                        <Spinner size="lg" />
-                        <p>Loading...</p>
-                      </div>
-                    }
-                    renderEmptyState={() => (
-                      <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
-                        <span className="text-sm text-muted">
-                          No alerts found
-                        </span>
-                      </EmptyState>
-                    )}
-                    items={RecentAlerts}
-                  >
-                    {(item) => (
+                  {isLoading ? (
+                    <Table.Body items={[]}>
                       <Table.Row>
-                        <Table.Cell>
-                          {" "}
-                          {RecentAlerts.findIndex((x) => x.id === item.id) + 1}
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-slate-400" />
-                            <span className="text-sm">
-                              {new Date(item.time).toLocaleString()}
-                            </span>
+                        <Table.Cell colSpan={7}>
+                          <div className="flex flex-col items-center justify-center gap-4 py-10">
+                            <Spinner size="lg" />
+                            <p>Loading...</p>
                           </div>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <img
-                            src={item.image_url}
-                            alt={item.event}
-                            className="w-24 h-16 object-cover rounded-xl border border-slate-200 shadow-md hover:scale-105 transition-transform duration-200 cursor-pointer"
-                            onClick={() =>
-                              window.open(item.image_url, "_blank")
-                            }
-                            onError={(e) => {
-                              e.currentTarget.src =
-                                "https://placehold.co/120x80/e2e8f0/64748b?text=No+Image";
-                            }}
-                          />
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-blue-100 p-2 rounded-lg">
-                              <Camera className="w-4 h-4 text-blue-600" />
-                            </div>
-                            <span className="text-sm text-slate-700 font-semibold">
-                              {item.camera}
-                            </span>
-                          </div>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-orange-100 p-2 rounded-lg">
-                              <AlertTriangle className="w-4 h-4 text-orange-600" />
-                            </div>
-                            <span className="text-sm text-slate-700 font-semibold">
-                              {item.event}
-                            </span>
-                          </div>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <div
-                            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
-                              item.status === "New"
-                                ? "bg-linear-to-r from-red-100 to-red-200 text-red-700"
-                                : item.status === "Resolved"
-                                  ? "bg-linear-to-r from-green-100 to-emerald-200 text-green-700"
-                                  : "bg-linear-to-r from-amber-100 to-yellow-200 text-amber-700"
-                            }`}
-                          >
-                            {item.status === "New" && (
-                              <XCircle className="w-3 h-3" />
-                            )}
-                            {item.status === "Resolved" && (
-                              <CheckCircle className="w-3 h-3" />
-                            )}
-                            {item.status === "In Progress" && (
-                              <Clock className="w-3 h-3" />
-                            )}
-                            {item.status}
-                          </div>
-                        </Table.Cell>
-                        <Table.Cell>
-                          <Tooltip content="View Alert" placement="top">
-                            <Button
-                              isIconOnly
-                              size="sm"
-                              className="bg-linear-to-r  transition-all duration-200 hover:scale-110"
-                              onPress={() =>
-                                navigate(`/alert/${item.id}`, {
-                                  state: { alertData: item },
-                                })
-                              }
-                            >
-                              <AiOutlineEye className="size-4" />
-                            </Button>
-                          </Tooltip>
                         </Table.Cell>
                       </Table.Row>
-                    )}
-                  </Table.Body>
+                    </Table.Body>
+                  ) : RecentAlerts.length === 0 ? (
+                    <Table.Body items={[]}>
+                      <Table.Row>
+                        <Table.Cell colSpan={7}>
+                          <div className="flex flex-col items-center justify-center gap-4 py-10">
+                            <span className="text-sm text-muted">
+                              No alerts found
+                            </span>
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    </Table.Body>
+                  ) : (
+                    <Table.Body items={RecentAlerts}>
+                      {(item) => (
+                        <Table.Row>
+                          <Table.Cell>
+                            {" "}
+                            {RecentAlerts.findIndex((x) => x.id === item.id) + 1}
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-slate-400" />
+                              <span className="text-sm">
+                                {new Date(item.time).toLocaleString()}
+                              </span>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <img
+                              src={item.image_url}
+                              alt={item.event}
+                              className="w-24 h-16 object-cover rounded-xl border border-slate-200 shadow-md hover:scale-105 transition-transform duration-200 cursor-pointer"
+                              onClick={() =>
+                                window.open(item.image_url, "_blank")
+                              }
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  "https://placehold.co/120x80/e2e8f0/64748b?text=No+Image";
+                              }}
+                            />
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div className="flex items-center gap-2">
+                              <div className="bg-blue-100 p-2 rounded-lg">
+                                <Camera className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <span className="text-sm text-slate-700 font-semibold">
+                                {item.camera}
+                              </span>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div className="flex items-center gap-2">
+                              <div className="bg-orange-100 p-2 rounded-lg">
+                                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                              </div>
+                              <span className="text-sm text-slate-700 font-semibold">
+                                {item.event}
+                              </span>
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <div
+                              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${
+                                item.status === "New"
+                                  ? "bg-linear-to-r from-red-100 to-red-200 text-red-700"
+                                  : item.status === "Resolved"
+                                    ? "bg-linear-to-r from-green-100 to-emerald-200 text-green-700"
+                                    : "bg-linear-to-r from-amber-100 to-yellow-200 text-amber-700"
+                              }`}
+                            >
+                              {item.status === "New" && (
+                                <XCircle className="w-3 h-3" />
+                              )}
+                              {item.status === "Resolved" && (
+                                <CheckCircle className="w-3 h-3" />
+                              )}
+                              {item.status === "In Progress" && (
+                                <Clock className="w-3 h-3" />
+                              )}
+                              {item.status}
+                            </div>
+                          </Table.Cell>
+                          <Table.Cell>
+                            <Tooltip content="View Alert" placement="top">
+                              <Button
+                                isIconOnly
+                                size="sm"
+                                className="bg-linear-to-r  transition-all duration-200 hover:scale-110"
+                                onPress={() =>
+                                  navigate(`/alert/${item.id}`, {
+                                    state: { alertData: item },
+                                  })
+                                }
+                              >
+                                <AiOutlineEye className="size-4" />
+                              </Button>
+                            </Tooltip>
+                          </Table.Cell>
+                        </Table.Row>
+                      )}
+                    </Table.Body>
+                  )}
                   
                 </Table.Content>
               </Table.ScrollContainer>
