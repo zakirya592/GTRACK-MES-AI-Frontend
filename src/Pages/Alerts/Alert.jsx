@@ -225,11 +225,6 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
             <Table
               aria-label="Recent Alerts"
               removeWrapper
-              classNames={{
-                table: "min-w-full",
-                th: "bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider min-h-[200px]",
-                td: "py-4",
-              }}
             >
               <Table.ScrollContainer className="max-h-120 overflow-y-auto overflow-x-hidden">
                 <Table.Content aria-label="Team members" className="min-w-150">
