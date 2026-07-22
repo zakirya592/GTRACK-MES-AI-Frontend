@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AlertTriangle, User, Clock, MapPin, Camera } from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 
 function AlertDetail() {
   const navigate = useNavigate();

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play } from "lucide-react";
 import { baseUrl } from "../../utils/config";
+import newRequest from "../../utils/userRequest";
+import { useQuery } from "@tanstack/react-query";
 
 function LiveView() {
   const navigate = useNavigate();
@@ -16,7 +18,6 @@ function LiveView() {
       location: "Production Area 1",
       status: "online",
       lastUpdate: "2 min ago",
-      alerts: 0,
       ipaddress: "192.168.100.239",
     },
     {
@@ -26,10 +27,26 @@ function LiveView() {
       location: "Production Area 2",
       status: "online",
       lastUpdate: "1 min ago",
-      alerts: 1,
       ipaddress: "192.168.100.240",
     },
   ];
+
+    const getAlerts = async () => {
+      const res = await newRequest.get("/detection-alerts");
+      return res.data.data;
+    };
+  
+  const { data: RecentAlerts = [], isLoading, isError } = useQuery({
+      queryKey: ['alerts'],
+      queryFn: getAlerts
+    });
+  
+    const totalAlerts = RecentAlerts.length;
+
+    // Count alerts per camera
+    const getCameraAlerts = (cameraName) => {
+      return RecentAlerts.filter(alert => alert.camera === cameraName).length;
+    };
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100 w-full">
@@ -83,7 +100,9 @@ function LiveView() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-slate-500 text-sm">Active Alerts</p>
-                <p className="text-2xl font-bold text-orange-600">{cameras.reduce((sum, c) => sum + c.alerts, 0)}</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {totalAlerts || "0"}
+                </p>
               </div>
               <AlertTriangle className="w-8 h-8 text-orange-500" />
             </div>
@@ -164,10 +183,10 @@ function LiveView() {
                     </div>
                   </>
                 )}
-                {camera.alerts > 0 && (
+                {getCameraAlerts(camera.name) > 0 && (
                   <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                     <AlertTriangle className="w-3 h-3" />
-                    {camera.alerts}
+                    {getCameraAlerts(camera.name)}
                   </div>
                 )}
               </div>

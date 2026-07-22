@@ -1,17 +1,17 @@
 import React from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  Camera, 
-  AlertTriangle, 
+import {
+  Camera,
+  AlertTriangle,
   ArrowLeft,
-  Play,
-  Pause,
   Settings,
   Download,
   Share2
 } from "lucide-react";
 import { baseUrl } from "../../utils/config";
+import newRequest from "../../utils/userRequest";
+import { useQuery } from "@tanstack/react-query";
 
 function CameraDetail() {
   const { cameraId } = useParams();
@@ -19,7 +19,7 @@ function CameraDetail() {
   const location = useLocation();
   const [isCameraLive, setIsCameraLive] = React.useState(true);
   const [imageLoaded, setImageLoaded] = React.useState(false);
-  
+
   // Get ipAddress from navigation state
   const ipAddress = location.state?.ipAddress || "192.168.1.100";
 
@@ -52,6 +52,29 @@ function CameraDetail() {
     alert('Settings panel would open here');
   };
 
+  const getAlerts = async () => {
+    const res = await newRequest.get("/detection-alerts");
+    return res.data.data;
+  };
+
+  const {
+    data: alerts = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: getAlerts,
+  });
+
+  const cameraName = `Camera ${cameraId}`;
+
+  const cameraAlertsresent = React.useMemo(() => {
+    return alerts
+      .filter((alert) => alert.camera === cameraName)
+      .sort((a, b) => new Date(b.time) - new Date(a.time)); // newest first
+  }, [alerts, cameraId]);
+
+
   // Mock camera data - in real app, this would come from an API
   const cameraData = {
     id: cameraId,
@@ -59,7 +82,7 @@ function CameraDetail() {
     location: "Production Area 1",
     status: isCameraLive ? "online" : "offline",
     lastUpdate: "30 sec ago",
-    alerts: 2,
+    alerts: cameraAlertsresent.length || "0",
     resolution: "1920x1080",
     fps: 30,
     uptime: "99.8%",
@@ -69,29 +92,6 @@ function CameraDetail() {
     lastMaintenance: "2025-05-15"
   };
 
-  const recentAlerts = [
-    {
-      id: 1,
-      type: "No Helmet Detected",
-      time: "10:30:18",
-      severity: "high",
-      confidence: "96%"
-    },
-    {
-      id: 2,
-      type: "Unauthorized Access",
-      time: "10:25:42",
-      severity: "high",
-      confidence: "89%"
-    },
-    {
-      id: 3,
-      type: "Safety Violation",
-      time: "10:20:15",
-      severity: "medium",
-      confidence: "92%"
-    }
-  ];
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100 w-full">
@@ -127,12 +127,12 @@ function CameraDetail() {
               >
                 {cameraData.status.toUpperCase()}
               </span>
-              {cameraData.alerts > 0 && (
+              {/* {cameraData.alerts > 0 && ( */}
                 <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
-                  {cameraData.alerts} Active Alerts
+                  {cameraData.alerts || "0"} Active Alerts
                 </span>
-              )}
+              {/* )} */}
             </div>
           </div>
         </motion.div>
@@ -152,7 +152,9 @@ function CameraDetail() {
                   <div className="flex flex-col items-center justify-center text-slate-500">
                     <Camera className="w-24 h-24 mb-4" />
                     <p className="text-xl font-medium">Camera Offline</p>
-                    <p className="text-sm">The camera is currently not running</p>
+                    <p className="text-sm">
+                      The camera is currently not running
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -197,13 +199,22 @@ function CameraDetail() {
                     </button>
                   </div> */}
                   <div className="flex gap-2">
-                    <button onClick={handleDownload} className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors">
+                    <button
+                      onClick={handleDownload}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors"
+                    >
                       <Download className="w-5 h-5" />
                     </button>
-                    <button onClick={handleShare} className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors">
+                    <button
+                      onClick={handleShare}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors"
+                    >
                       <Share2 className="w-5 h-5" />
                     </button>
-                    <button onClick={handleSettings} className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors">
+                    <button
+                      onClick={handleSettings}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-lg transition-colors"
+                    >
                       <Settings className="w-5 h-5" />
                     </button>
                   </div>
@@ -216,56 +227,100 @@ function CameraDetail() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-6 bg-white rounded-2xl shadow-lg p-6"
+              className="mt-6 bg-white rounded-2xl shadow-lg"
             >
-              <h2 className="text-xl font-bold text-slate-800 mb-4">
-                Recent Alerts
-              </h2>
-              <div className="space-y-3">
-                {recentAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`p-2 rounded-lg ${
-                          alert.severity === "high"
-                            ? "bg-red-100"
-                            : "bg-yellow-100"
-                        }`}
-                      >
-                        <AlertTriangle
-                          className={`w-5 h-5 ${
-                            alert.severity === "high"
-                              ? "text-red-600"
-                              : "text-yellow-600"
-                          }`}
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">
+                    Recent Alerts
+                  </h2>
+                  <p className="text-sm text-slate-500 mt-1">
+                    {cameraAlertsresent.length} alert
+                    {cameraAlertsresent.length !== 1 && "s"} detected
+                  </p>
+                </div>
+
+                <div className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm font-semibold">
+                  Live
+                </div>
+              </div>
+
+              {/* Scrollable List */}
+              <div className="max-h-[520px] overflow-y-auto p-5 space-y-4">
+                {cameraAlertsresent.length > 0 ? (
+                  cameraAlertsresent.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="group bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:bg-white hover:shadow-lg hover:border-red-200 transition-all duration-300"
+                    >
+                      <div className="flex gap-4">
+                        {/* Alert Image */}
+                        <img
+                          src={alert.image_url}
+                          alt={alert.event}
+                          className="w-28 h-24 rounded-xl object-cover border"
                         />
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-800">
-                          {alert.type}
-                        </p>
-                        <p className="text-sm text-slate-500">{alert.time}</p>
+
+                        {/* Alert Details */}
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-semibold text-slate-800 text-lg">
+                                {alert.event}
+                              </h3>
+
+                              <p className="text-sm text-slate-500 mt-1">
+                                📍 {alert.location}
+                              </p>
+
+                              <p className="text-sm text-slate-500">
+                                📷 {alert.camera}
+                              </p>
+                            </div>
+
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                alert.status === "New"
+                                  ? "bg-red-100 text-red-600"
+                                  : "bg-green-100 text-green-600"
+                              }`}
+                            >
+                              {alert.status}
+                            </span>
+                          </div>
+
+                          {/* Bottom Row */}
+                          <div className="flex justify-between items-center mt-4">
+                            <div className="flex gap-2">
+                              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                                {alert.confidence}% Confidence
+                              </span>
+
+                              <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-medium">
+                                Alert #{alert.id}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-slate-400">
+                              {new Date(alert.time).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-slate-700">
-                        Confidence: {alert.confidence}
-                      </p>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          alert.severity === "high"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {alert.severity}
-                      </span>
-                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <AlertTriangle className="w-16 h-16 text-slate-300 mb-4" />
+                    <p className="text-lg font-semibold text-slate-500">
+                      No Alerts Found
+                    </p>
+                    <p className="text-sm text-slate-400">
+                      This camera has no recent safety violations.
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -325,14 +380,6 @@ function CameraDetail() {
                     {cameraData.ipAddress}
                   </span>
                 </div>
-                {/* <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">MAC Address</span>
-                  <span className="font-medium text-slate-800">{cameraData.macAddress}</span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">Firmware</span>
-                  <span className="font-medium text-slate-800">{cameraData.firmware}</span>
-                </div> */}
                 <div className="flex items-center justify-between py-2">
                   <span className="text-slate-500">Last Maintenance</span>
                   <span className="font-medium text-slate-800">
@@ -348,7 +395,9 @@ function CameraDetail() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-blue-100">Total Alerts</span>
-                  <span className="text-2xl font-bold">12</span>
+                  <span className="text-2xl font-bold">
+                    {cameraAlertsresent.length || "0"}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-blue-100">High Priority</span>
