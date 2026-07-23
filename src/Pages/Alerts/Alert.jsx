@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertTriangle, Clock, Camera, CheckCircle, XCircle } from "lucide-react";
+import { AlertTriangle, Clock, Camera, CheckCircle, XCircle, TriangleAlert } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 // import { Spinner, Button, Card } from "@nextui-org/react";
@@ -222,10 +222,7 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
                 </tbody>
               </table>
             </div> */}
-            <Table
-              aria-label="Recent Alerts"
-              removeWrapper
-            >
+            <Table aria-label="Recent Alerts" removeWrapper>
               <Table.ScrollContainer className="max-h-120 overflow-y-auto overflow-x-hidden">
                 <Table.Content aria-label="Team members" className="min-w-150">
                   <Table.Header>
@@ -266,8 +263,9 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
                     <Table.Body items={[]}>
                       <Table.Row>
                         <Table.Cell colSpan={7}>
-                          <div className="flex flex-col items-center justify-center gap-4 py-10">
-                            <span className="text-sm text-muted">
+                          <div className="flex flex-col items-center justify-center gap-3 py-10 text-slate-500">
+                            <TriangleAlert className="w-12 h-12 text-orange-500" />
+                            <span className="text-sm font-medium">
                               No alerts found
                             </span>
                           </div>
@@ -280,7 +278,8 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
                         <Table.Row>
                           <Table.Cell>
                             {" "}
-                            {RecentAlerts.findIndex((x) => x.id === item.id) + 1}
+                            {RecentAlerts.findIndex((x) => x.id === item.id) +
+                              1}
                           </Table.Cell>
                           <Table.Cell>
                             <div className="flex items-center gap-2">
@@ -366,7 +365,6 @@ const { data: RecentAlerts = [], isLoading, isError } = useQuery({
                       )}
                     </Table.Body>
                   )}
-                  
                 </Table.Content>
               </Table.ScrollContainer>
             </Table>

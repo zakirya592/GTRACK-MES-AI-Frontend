@@ -1,35 +1,83 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  Users, 
-  AlertTriangle, 
-  Camera, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  Users,
+  AlertTriangle,
+  Camera,
+  TrendingUp,
   ShieldCheck,
   Clock,
-  Activity
+  Activity,
+  CameraOff
 } from "lucide-react";
+import newRequest from "../../utils/userRequest";
+import { useQuery } from "@tanstack/react-query";
+import { Spinner } from "@heroui/react";
 
 function Dashboard() {
+
+  const getHealth = async () => {
+    const res = await newRequest.get("/health");
+    return res.data;
+  };
+
+  const {
+    data: healthData,
+    isLoading: healthLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["health"],
+    queryFn: getHealth,
+  });
+
+  const cameras = healthData?.cameras
+    ? Object.entries(healthData.cameras).map(([key, camera], index) => ({
+      id: index + 1,
+      key,
+      name: camera.name,
+      // imagecamera: `${baseUrl}${camera.endpoint}`,
+      location: camera.location,
+      status:
+        healthData.stream_running && camera.has_frame ? "online" : "offline",
+      lastUpdate: "Live",
+      ipaddress: healthData.nvr_ip,
+      hasFrame: camera.has_frame,
+    }))
+    : [];
+
+  const getAlerts = async () => {
+    const res = await newRequest.get("/detection-alerts");
+    return res.data.data;
+  };
+
+  const { data: RecentAlerts = [], isLoading: alertLoading } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: getAlerts,
+  });
+
+  const totalAlerts = RecentAlerts.length;
+
   const stats = [
     {
       title: "Total Cameras",
-      value: "24",
+      value: `${cameras.length || "0"}`,
+      loading: healthLoading,
       change: "+2",
       changeType: "positive",
       icon: Camera,
       color: "blue",
-      description: "Active monitoring devices"
+      description: "Active monitoring devices",
     },
     {
       title: "Active Alerts",
-      value: "12",
+      value: `${totalAlerts}`,
+      loading: alertLoading,
       change: "+5",
       changeType: "negative",
       icon: AlertTriangle,
       color: "red",
-      description: "Requires attention"
+      description: "Requires attention",
     },
     {
       title: "Workers On-Site",
@@ -38,7 +86,7 @@ function Dashboard() {
       changeType: "positive",
       icon: Users,
       color: "green",
-      description: "Currently active"
+      description: "Currently active",
     },
     {
       title: "Safety Score",
@@ -47,8 +95,8 @@ function Dashboard() {
       changeType: "positive",
       icon: ShieldCheck,
       color: "purple",
-      description: "Overall compliance"
-    }
+      description: "Overall compliance",
+    },
   ];
 
   const recentActivity = [
@@ -127,7 +175,9 @@ function Dashboard() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Dashboard</h1>
-          <p className="text-slate-500">Real-time monitoring and safety overview</p>
+          <p className="text-slate-500">
+            Real-time monitoring and safety overview
+          </p>
         </motion.div>
 
         {/* Stats Grid */}
@@ -150,15 +200,31 @@ function Dashboard() {
                   <div className={`${colors.bg} p-3 rounded-xl`}>
                     <Icon className={`w-6 h-6 ${colors.text}`} />
                   </div>
-                  <span className={`text-sm font-medium ${
-                    stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <span
+                    className={`text-sm font-medium ${stat.changeType === "positive"
+                        ? "text-green-600"
+                        : "text-red-600"
+                      }`}
+                  >
                     {stat.change}
                   </span>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-1">{stat.value}</h3>
-                <p className="text-slate-500 text-sm font-medium">{stat.title}</p>
-                <p className="text-slate-400 text-xs mt-1">{stat.description}</p>
+
+                {stat.loading ? (
+                  <div className="mt-3">
+                    <Spinner size="sm" />
+                  </div>
+                ) : (
+                  <h3 className="text-2xl font-bold text-slate-800 mb-1">
+                    {stat.value}
+                  </h3>
+                )}
+                <p className="text-slate-500 text-sm font-medium">
+                  {stat.title}
+                </p>
+                <p className="text-slate-400 text-xs mt-1">
+                  {stat.description}
+                </p>
               </motion.div>
             );
           })}
@@ -174,25 +240,49 @@ function Dashboard() {
             className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">Recent Activity</h2>
-              <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">View All →</button>
+              <h2 className="text-xl font-bold text-slate-800">
+                Recent Activity
+              </h2>
+              <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                View All →
+              </button>
             </div>
             <div className="space-y-4">
               {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                  <div className={`p-2 rounded-lg ${
-                    activity.severity === 'high' ? 'bg-red-100' : 
-                    activity.type === 'success' ? 'bg-green-100' : 'bg-blue-100'
-                  }`}>
-                    {activity.type === 'alert' && <AlertTriangle className={`w-5 h-5 ${
-                      activity.severity === 'high' ? 'text-red-600' : 'text-blue-600'
-                    }`} />}
-                    {activity.type === 'info' && <Camera className="w-5 h-5 text-blue-600" />}
-                    {activity.type === 'success' && <ShieldCheck className="w-5 h-5 text-green-600" />}
+                <div
+                  key={activity.id}
+                  className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                >
+                  <div
+                    className={`p-2 rounded-lg ${activity.severity === "high"
+                        ? "bg-red-100"
+                        : activity.type === "success"
+                          ? "bg-green-100"
+                          : "bg-blue-100"
+                      }`}
+                  >
+                    {activity.type === "alert" && (
+                      <AlertTriangle
+                        className={`w-5 h-5 ${activity.severity === "high"
+                            ? "text-red-600"
+                            : "text-blue-600"
+                          }`}
+                      />
+                    )}
+                    {activity.type === "info" && (
+                      <Camera className="w-5 h-5 text-blue-600" />
+                    )}
+                    {activity.type === "success" && (
+                      <ShieldCheck className="w-5 h-5 text-green-600" />
+                    )}
                   </div>
                   <div className="flex-1">
-                    <p className="text-slate-700 font-medium">{activity.message}</p>
-                    <p className="text-slate-400 text-sm mt-1">{activity.time}</p>
+                    <p className="text-slate-700 font-medium">
+                      {activity.message}
+                    </p>
+                    <p className="text-slate-400 text-sm mt-1">
+                      {activity.time}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -207,31 +297,63 @@ function Dashboard() {
             className="bg-white rounded-2xl shadow-lg p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">Camera Status</h2>
+              <h2 className="text-xl font-bold text-slate-800">
+                Camera Status
+              </h2>
               <Activity className="w-5 h-5 text-slate-400" />
             </div>
-            <div className="space-y-3">
-              {cameraStatus.map((camera, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      camera.status === 'online' ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
-                    <div>
-                      <p className="text-slate-700 font-medium text-sm">{camera.name}</p>
-                      <p className="text-slate-400 text-xs">{camera.location}</p>
+
+
+            {healthLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Spinner size="lg" color="primary" />
+              </div>
+            ) : cameras.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+    <CameraOff className="w-12 h-12 mb-3 text-slate-400" />
+    <p className="font-medium">No cameras found</p>
+    <p className="text-sm text-slate-400">
+      No camera data is available.
+    </p>
+  </div>
+            ) : (
+              <div className="space-y-3">
+                {cameras.map((camera, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-3 h-3 rounded-full ${camera.status === "online"
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                          }`}
+                      />
+                      <div>
+                        <p className="text-slate-700 font-medium text-sm">
+                          {camera.name}
+                        </p>
+                        <p className="text-slate-400 text-xs">
+                          {camera.location}
+                        </p>
+                      </div>
                     </div>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${camera.status === "online"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                        }`}
+                    >
+                      {camera.status}
+                    </span>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                    camera.status === 'online' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {camera.status}
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+
+
+
           </motion.div>
         </div>
 
@@ -245,7 +367,9 @@ function Dashboard() {
           <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium mb-1">Today's Incidents</p>
+                <p className="text-blue-100 text-sm font-medium mb-1">
+                  Today's Incidents
+                </p>
                 <p className="text-3xl font-bold">8</p>
               </div>
               <TrendingUp className="w-12 h-12 text-blue-200" />
@@ -256,7 +380,9 @@ function Dashboard() {
           <div className="bg-linear-to-r from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium mb-1">Compliance Rate</p>
+                <p className="text-green-100 text-sm font-medium mb-1">
+                  Compliance Rate
+                </p>
                 <p className="text-3xl font-bold">98.5%</p>
               </div>
               <ShieldCheck className="w-12 h-12 text-green-200" />
@@ -267,7 +393,9 @@ function Dashboard() {
           <div className="bg-linear-to-r from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium mb-1">Avg Response Time</p>
+                <p className="text-purple-100 text-sm font-medium mb-1">
+                  Avg Response Time
+                </p>
                 <p className="text-3xl font-bold">2.4m</p>
               </div>
               <Clock className="w-12 h-12 text-purple-200" />
