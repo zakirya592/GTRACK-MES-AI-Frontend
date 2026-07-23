@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -7,7 +7,12 @@ import {
   ArrowLeft,
   Settings,
   Download,
-  Share2
+  Share2,
+  Maximize,
+  Minimize,
+  Plus,
+  Minus,
+  RotateCcw
 } from "lucide-react";
 import { baseUrl } from "../../utils/config";
 import newRequest from "../../utils/userRequest";
@@ -19,6 +24,13 @@ function CameraDetail() {
   const location = useLocation();
   const [isCameraLive, setIsCameraLive] = React.useState(true);
   const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const [zoom, setZoom] = React.useState(1);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragStart, setDragStart] = React.useState({ x: 0, y: 0 });
+  const imageRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Get ipAddress from navigation state
   const ipAddress = location.state?.ipAddress || "192.168.1.100";
@@ -51,6 +63,72 @@ function CameraDetail() {
   const handleSettings = () => {
     alert('Settings panel would open here');
   };
+
+  const handleFullscreen = () => {
+    if (!isFullscreen && containerRef.current) {
+      containerRef.current.requestFullscreen?.();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
+    }
+  };
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(prev - 0.25, 1));
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      handleZoomIn();
+    } else {
+      handleZoomOut();
+    }
+  };
+
+  // Handle fullscreen change (ESC key press)
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const getAlerts = async () => {
     const res = await newRequest.get("/detection-alerts");
@@ -148,7 +226,11 @@ function CameraDetail() {
           >
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               {/* Camera Feed */}
-              <div className="relative h-96 bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+              <div
+                ref={containerRef}
+                className={`relative ${isFullscreen ? 'h-screen w-screen' : 'h-96'} bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden`}
+                onWheel={handleWheel}
+              >
                 {!isCameraLive ? (
                   <div className="flex flex-col items-center justify-center text-slate-500">
                     <Camera className="w-24 h-24 mb-4" />
@@ -159,13 +241,28 @@ function CameraDetail() {
                   </div>
                 ) : (
                   <>
-                    <img
-                      src={`${baseUrl}/live-detection-camera-${cameraId}`}
-                      alt="Live AI camera detection stream"
-                      className="max-h-130 w-full object-contain"
-                      onLoad={() => setImageLoaded(true)}
-                      onError={() => setIsCameraLive(false)}
-                    />
+                    <div
+                      className="relative cursor-grab active:cursor-grabbing"
+                      style={{
+                        transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                        transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                      }}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onMouseLeave={handleMouseUp}
+                    >
+                      <img
+                        ref={imageRef}
+                        src={`${baseUrl}/live-detection-camera-${cameraId}`}
+                        alt="Live AI camera detection stream"
+                        className={`${isFullscreen ? 'max-h-screen' : 'max-h-130'} w-full object-contain`}
+                        style={{ maxHeight: isFullscreen ? '100vh' : '32rem' }}
+                        onLoad={() => setImageLoaded(true)}
+                        onError={() => setIsCameraLive(false)}
+                        draggable={false}
+                      />
+                    </div>
                     {!imageLoaded && (
                       <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-500"></div>
@@ -180,6 +277,44 @@ function CameraDetail() {
                         <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded text-sm">
                           {cameraData.resolution} @ {cameraData.fps}fps
                         </div>
+                        {/* Zoom Controls */}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2">
+                          <button
+                            onClick={handleFullscreen}
+                            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
+                            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                          >
+                            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+                          </button>
+                          <button
+                            onClick={handleZoomIn}
+                            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
+                            title="Zoom In"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={handleZoomOut}
+                            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
+                            title="Zoom Out"
+                            disabled={zoom <= 1}
+                          >
+                            <Minus className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={handleResetZoom}
+                            className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
+                            title="Reset Zoom"
+                          >
+                            <RotateCcw className="w-5 h-5" />
+                          </button>
+                        </div>
+                        {/* Zoom Level Indicator */}
+                        {zoom > 1 && (
+                          <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded text-sm">
+                            {Math.round(zoom * 100)}%
+                          </div>
+                        )}
                       </>
                     )}
                   </>
