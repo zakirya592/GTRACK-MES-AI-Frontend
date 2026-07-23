@@ -66,20 +66,21 @@ function CameraDetail() {
     queryFn: getAlerts,
   });
 
-  const cameraName = `Camera ${cameraId}`;
+  const cameraName = `${location.state?.cameraName}`;
+  console.log("cameraName", cameraName);
 
   const cameraAlertsresent = React.useMemo(() => {
     return alerts
       .filter((alert) => alert.camera === cameraName)
       .sort((a, b) => new Date(b.time) - new Date(a.time)); // newest first
-  }, [alerts, cameraId]);
+  }, [alerts, cameraName]);
 
 
   // Mock camera data - in real app, this would come from an API
   const cameraData = {
     id: cameraId,
-    name: `Camera ${cameraId}`,
-    location: "Production Area 1",
+    name: `${location.state?.cameraName} `,
+    location: `${location.state?.location} `,
     status: isCameraLive ? "online" : "offline",
     lastUpdate: "30 sec ago",
     alerts: cameraAlertsresent.length || "0",
@@ -89,7 +90,7 @@ function CameraDetail() {
     ipAddress: ipAddress,
     macAddress: "00:1B:44:11:3A:B7",
     firmware: "v2.4.1",
-    lastMaintenance: "2025-05-15"
+    lastMaintenance: "2025-05-15",
   };
 
 
@@ -161,7 +162,7 @@ function CameraDetail() {
                     <img
                       src={`${baseUrl}/live-detection-camera-${cameraId}`}
                       alt="Live AI camera detection stream"
-                      className="max-h-[520px] w-full object-contain"
+                      className="max-h-130 w-full object-contain"
                       onLoad={() => setImageLoaded(true)}
                       onError={() => setIsCameraLive(false)}
                     />
@@ -247,7 +248,7 @@ function CameraDetail() {
               </div>
 
               {/* Scrollable List */}
-              <div className="max-h-[520px] overflow-y-auto p-5 space-y-4">
+              <div className="max-h-130 overflow-y-auto p-5 space-y-4">
                 {cameraAlertsresent.length > 0 ? (
                   cameraAlertsresent.map((alert) => (
                     <div
