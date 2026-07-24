@@ -53,21 +53,21 @@ const Sidebar = () => {
       label: "WhatsApp",
       path: "/whatsapp",
     },
-    {
-      icon: Monitor,
-      label: "Devices",
-      path: "/devices",
-    },
+    // {
+    //   icon: Monitor,
+    //   label: "Devices",
+    //   path: "/devices",
+    // },
     {
       icon: FileText,
       label: "Reports",
       path: "/reports",
     },
-    {
-      icon: Settings,
-      label: "Settings",
-      path: "/settings",
-    },
+    // {
+    //   icon: Settings,
+    //   label: "Settings",
+    //   path: "/settings",
+    // },
   ];
 
   return (

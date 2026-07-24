@@ -58,6 +58,41 @@ function Dashboard() {
 
   const totalAlerts = RecentAlerts.length;
 
+const today = new Date();
+const yesterday = new Date();
+yesterday.setDate(today.getDate() - 1);
+
+const isSameDay = (date1, date2) => {
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
+
+const todayIncidents = RecentAlerts.filter((alert) =>
+  isSameDay(new Date(alert.time), today),
+).length;
+
+const yesterdayIncidents = RecentAlerts.filter((alert) =>
+  isSameDay(new Date(alert.time), yesterday),
+).length;
+
+// Difference
+const incidentDifference = todayIncidents - yesterdayIncidents;
+
+// Percentage change
+const incidentPercentage =
+  yesterdayIncidents === 0
+    ? todayIncidents > 0
+      ? 100
+      : 0
+    : Math.round((incidentDifference / yesterdayIncidents) * 100);
+
+// Status
+const incidentTrend =
+  incidentDifference > 0 ? "up" : incidentDifference < 0 ? "down" : "same";
+
   const stats = [
     {
       title: "Total Cameras",
@@ -201,10 +236,11 @@ function Dashboard() {
                     <Icon className={`w-6 h-6 ${colors.text}`} />
                   </div>
                   <span
-                    className={`text-sm font-medium ${stat.changeType === "positive"
+                    className={`text-sm font-medium ${
+                      stat.changeType === "positive"
                         ? "text-green-600"
                         : "text-red-600"
-                      }`}
+                    }`}
                   >
                     {stat.change}
                   </span>
@@ -254,19 +290,21 @@ function Dashboard() {
                   className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
                 >
                   <div
-                    className={`p-2 rounded-lg ${activity.severity === "high"
+                    className={`p-2 rounded-lg ${
+                      activity.severity === "high"
                         ? "bg-red-100"
                         : activity.type === "success"
                           ? "bg-green-100"
                           : "bg-blue-100"
-                      }`}
+                    }`}
                   >
                     {activity.type === "alert" && (
                       <AlertTriangle
-                        className={`w-5 h-5 ${activity.severity === "high"
+                        className={`w-5 h-5 ${
+                          activity.severity === "high"
                             ? "text-red-600"
                             : "text-blue-600"
-                          }`}
+                        }`}
                       />
                     )}
                     {activity.type === "info" && (
@@ -303,19 +341,18 @@ function Dashboard() {
               <Activity className="w-5 h-5 text-slate-400" />
             </div>
 
-
             {healthLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Spinner size="lg" color="primary" />
               </div>
             ) : cameras.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-    <CameraOff className="w-12 h-12 mb-3 text-slate-400" />
-    <p className="font-medium">No cameras found</p>
-    <p className="text-sm text-slate-400">
-      No camera data is available.
-    </p>
-  </div>
+                <CameraOff className="w-12 h-12 mb-3 text-slate-400" />
+                <p className="font-medium">No cameras found</p>
+                <p className="text-sm text-slate-400">
+                  No camera data is available.
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {cameras.map((camera, index) => (
@@ -325,10 +362,11 @@ function Dashboard() {
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-3 h-3 rounded-full ${camera.status === "online"
+                        className={`w-3 h-3 rounded-full ${
+                          camera.status === "online"
                             ? "bg-green-500"
                             : "bg-red-500"
-                          }`}
+                        }`}
                       />
                       <div>
                         <p className="text-slate-700 font-medium text-sm">
@@ -340,10 +378,11 @@ function Dashboard() {
                       </div>
                     </div>
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${camera.status === "online"
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        camera.status === "online"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
-                        }`}
+                      }`}
                     >
                       {camera.status}
                     </span>
@@ -351,9 +390,6 @@ function Dashboard() {
                 ))}
               </div>
             )}
-
-
-
           </motion.div>
         </div>
 
@@ -370,11 +406,17 @@ function Dashboard() {
                 <p className="text-blue-100 text-sm font-medium mb-1">
                   Today's Incidents
                 </p>
-                <p className="text-3xl font-bold">8</p>
+                <p className="text-3xl font-bold">{todayIncidents}</p>
               </div>
               <TrendingUp className="w-12 h-12 text-blue-200" />
             </div>
-            <p className="text-blue-200 text-sm mt-3">↓ 15% from yesterday</p>
+            <p className="text-blue-200 text-sm mt-3">
+              {incidentTrend === "up" &&
+                `↑ ${incidentPercentage}% from yesterday`}
+              {incidentTrend === "down" &&
+                `↓ ${Math.abs(incidentPercentage)}% from yesterday`}
+              {incidentTrend === "same" && "No change from yesterday"}
+            </p>
           </div>
 
           <div className="bg-linear-to-r from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
