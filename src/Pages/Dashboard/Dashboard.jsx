@@ -267,9 +267,9 @@ const incidentTrend =
         </motion.div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
-          <motion.div
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
+        {/* Recent Activity */}
+        {/* <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -325,10 +325,10 @@ const incidentTrend =
                 </div>
               ))}
             </div>
-          </motion.div>
+          </motion.div> */}
 
-          {/* Camera Status */}
-          <motion.div
+        {/* Camera Status */}
+        {/* <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -390,8 +390,116 @@ const incidentTrend =
                 ))}
               </div>
             )}
-          </motion.div>
-        </div>
+          </motion.div> */}
+        {healthLoading ? (
+          // <div className="flex items-center justify-center py-12">
+          //   <Spinner size="lg" color="primary" />
+          // </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="bg-slate-50 rounded-2xl p-5 shadow"
+              >
+                {/* Icon + Status */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-slate-200 animate-pulse" />
+                  <div className="w-16 h-6 rounded-full bg-slate-200 animate-pulse" />
+                </div>
+
+                {/* Camera Name */}
+                <div className="h-6 w-32 bg-slate-200 rounded animate-pulse mb-2" />
+
+                {/* Location */}
+                <div className="h-4 w-24 bg-slate-200 rounded animate-pulse mb-4" />
+
+                {/* Divider */}
+                <div className="border-t pt-3 space-y-3">
+                  <div className="h-4 w-full bg-slate-200 rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-slate-200 rounded animate-pulse" />
+                  <div className="h-4 w-2/3 bg-slate-200 rounded animate-pulse" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : cameras.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+            <CameraOff className="w-12 h-12 mb-3 text-slate-400" />
+            <p className="font-medium">No cameras found</p>
+            <p className="text-sm text-slate-400">
+              No camera data is available.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cameras.map((camera) => (
+              <motion.div
+                key={camera.id}
+                whileHover={{ y: -4 }}
+                className="bg-white hover:bg-slate-50 rounded-2xl shadow-lg p-5 hover:shadow-xl transition-shadow"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className={`p-3 rounded-xl ${
+                      camera.status === "online" ? "bg-green-100" : "bg-red-100"
+                    }`}
+                  >
+                    <Camera
+                      className={`w-6 h-6 ${
+                        camera.status === "online"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    />
+                  </div>
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      camera.status === "online"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {camera.status.toUpperCase()}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-bold text-slate-800">
+                  {camera.name}
+                </h3>
+
+                <p className="text-sm text-slate-500 mt-1">{camera.location}</p>
+
+                <div className="mt-4 border-t pt-3 space-y-1">
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold">IP:</span>{" "}
+                    {camera.ipaddress}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold">Last Update:</span>{" "}
+                    {camera.lastUpdate}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold">Frame:</span>{" "}
+                    <span
+                      className={`font-medium ${
+                        camera.hasFrame ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {camera.hasFrame ? "Available" : "No Frame"}
+                    </span>
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+        {/* </div> */}
 
         {/* Quick Stats Row */}
         <motion.div
