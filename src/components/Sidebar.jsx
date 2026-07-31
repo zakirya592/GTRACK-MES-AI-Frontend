@@ -32,11 +32,11 @@ const Sidebar = () => {
       label: "Live View",
       path: "/live-view",
     },
-    {
-      icon: Calendar,
-      label: "Events",
-      path: "/Events",
-    },
+    // {
+    //   icon: Calendar,
+    //   label: "Events",
+    //   path: "/Events",
+    // },
     {
       icon: AlertTriangle,
       label: "Alerts",
