@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play, Loader2 } from "lucide-react";
@@ -6,10 +6,13 @@ import { baseUrl } from "../../utils/config";
 import newRequest from "../../utils/userRequest";
 import { useQuery } from "@tanstack/react-query";
 import { Spinner } from "@heroui/react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function LiveView() {
   const navigate = useNavigate();
   const [streamUnavailable, setStreamUnavailable] = useState(false);
+  const previousAlertCount = useRef(0);
 
   const getHealth = async () => {
   const res = await newRequest.get("/health");
@@ -25,26 +28,6 @@ const {
   queryFn: getHealth,
 });
 
-  // const cameras = [
-  //   {
-  //     id: 1,
-  //     name: "Camera 1",
-  //     imagecamera: `${baseUrl}/live-detection-camera-1`,
-  //     location: "Production Area 1",
-  //     status: "online",
-  //     lastUpdate: "2 min ago",
-  //     ipaddress: "192.168.100.239",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Camera 2",
-  //     imagecamera: `${baseUrl}/live-detection-camera-2`,
-  //     location: "Production Area 2",
-  //     status: "online",
-  //     lastUpdate: "1 min ago",
-  //     ipaddress: "192.168.100.240",
-  //   },
-  // ];
   const cameras = healthData?.cameras
     ? Object.entries(healthData.cameras).map(([key, camera], index) => ({
         id: index + 1,
@@ -69,8 +52,31 @@ const {
       queryKey: ['alerts'],
       queryFn: getAlerts
     });
+
+    console.log(RecentAlerts, "RecentAlerts");
+    
   
     const totalAlerts = RecentAlerts.length;
+
+    useEffect(() => {
+      if (previousAlertCount.current === 0) {
+        previousAlertCount.current = totalAlerts;
+        return;
+      }
+
+      if (totalAlerts > previousAlertCount.current) {
+        const latestAlert = RecentAlerts[0];
+
+        toast.error(
+            `${latestAlert.event} detected\n${latestAlert.camera}\n${latestAlert.location}`,
+            {
+                toastId: latestAlert.id
+            }
+        );
+      }
+
+      previousAlertCount.current = totalAlerts;
+    }, [RecentAlerts, totalAlerts]);
 
     // Count alerts per camera
     const getCameraAlerts = (cameraName) => {

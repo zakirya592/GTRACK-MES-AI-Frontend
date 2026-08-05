@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import { toast } from "react-toastify";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -12,7 +13,7 @@ import {
   Minimize,
   Plus,
   Minus,
-  RotateCcw
+  RotateCcw,
 } from "lucide-react";
 import { baseUrl } from "../../utils/config";
 import newRequest from "../../utils/userRequest";
@@ -38,10 +39,10 @@ function CameraDetail() {
   // Handler functions for control buttons
   const handleDownload = () => {
     const imgSrc = `${baseUrl}/live-detection-camera-${cameraId}`;
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = imgSrc;
     link.download = `camera-${cameraId}-snapshot.jpg`;
-    link.target = '_blank';
+    link.target = "_blank";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -56,12 +57,12 @@ function CameraDetail() {
       });
     } else {
       navigator.clipboard.writeText(shareUrl);
-      alert('Camera link copied to clipboard!');
+      alert("Camera link copied to clipboard!");
     }
   };
 
   const handleSettings = () => {
-    alert('Settings panel would open here');
+    alert("Settings panel would open here");
   };
 
   const handleFullscreen = () => {
@@ -124,9 +125,9 @@ function CameraDetail() {
       }
     };
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
 
@@ -144,15 +145,47 @@ function CameraDetail() {
     queryFn: getAlerts,
   });
 
+  const lastAlertId = useRef(null);
+
+  useEffect(() => {
+    if (!alerts.length) return;
+
+    const latest = alerts[0];
+
+    // First load
+    if (lastAlertId.current === null) {
+      lastAlertId.current = latest.id;
+      return;
+    }
+
+    // New alert
+    if (latest.id !== lastAlertId.current) {
+      lastAlertId.current = latest.id;
+
+      toast.error(
+        <div>
+          <div className="font-bold text-lg">🚨 {latest.event}</div>
+
+          <div>📷 {latest.camera}</div>
+
+          <div>📍 {latest.location}</div>
+
+          <div>🎯 {latest.confidence}% Confidence</div>
+        </div>,
+        {
+          toastId: latest.id,
+        },
+      );
+    }
+  }, [alerts]);
+
   const cameraName = `${location.state?.cameraName}`;
-  console.log("cameraName", cameraName);
 
   const cameraAlertsresent = React.useMemo(() => {
     return alerts
       .filter((alert) => alert.camera === cameraName)
       .sort((a, b) => new Date(b.time) - new Date(a.time)); // newest first
   }, [alerts, cameraName]);
-
 
   // Mock camera data - in real app, this would come from an API
   const cameraData = {
@@ -170,7 +203,6 @@ function CameraDetail() {
     firmware: "v2.4.1",
     lastMaintenance: "2025-05-15",
   };
-
 
   return (
     <div className="flex min-h-screen bg-linear-to-br from-slate-50 to-slate-100 w-full">
@@ -207,10 +239,10 @@ function CameraDetail() {
                 {cameraData.status.toUpperCase()}
               </span>
               {/* {cameraData.alerts > 0 && ( */}
-                <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  {cameraData.alerts || "0"} Active Alerts
-                </span>
+              <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                {cameraData.alerts || "0"} Active Alerts
+              </span>
               {/* )} */}
             </div>
           </div>
@@ -228,7 +260,7 @@ function CameraDetail() {
               {/* Camera Feed */}
               <div
                 ref={containerRef}
-                className={`relative ${isFullscreen ? 'h-screen w-screen' : 'h-96'} bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden`}
+                className={`relative ${isFullscreen ? "h-screen w-screen" : "h-96"} bg-linear-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden`}
                 onWheel={handleWheel}
               >
                 {!isCameraLive ? (
@@ -245,7 +277,9 @@ function CameraDetail() {
                       className="relative cursor-grab active:cursor-grabbing"
                       style={{
                         transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-                        transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                        transition: isDragging
+                          ? "none"
+                          : "transform 0.1s ease-out",
                       }}
                       onMouseDown={handleMouseDown}
                       onMouseMove={handleMouseMove}
@@ -256,8 +290,8 @@ function CameraDetail() {
                         ref={imageRef}
                         src={`${baseUrl}/live-detection-camera-${cameraId}`}
                         alt="Live AI camera detection stream"
-                        className={`${isFullscreen ? 'max-h-screen' : 'max-h-130'} w-full object-contain`}
-                        style={{ maxHeight: isFullscreen ? '100vh' : '32rem' }}
+                        className={`${isFullscreen ? "max-h-screen" : "max-h-130"} w-full object-contain`}
+                        style={{ maxHeight: isFullscreen ? "100vh" : "32rem" }}
                         onLoad={() => setImageLoaded(true)}
                         onError={() => setIsCameraLive(false)}
                         draggable={false}
@@ -282,9 +316,15 @@ function CameraDetail() {
                           <button
                             onClick={handleFullscreen}
                             className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-lg transition-colors"
-                            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                            title={
+                              isFullscreen ? "Exit Fullscreen" : "Fullscreen"
+                            }
                           >
-                            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+                            {isFullscreen ? (
+                              <Minimize className="w-5 h-5" />
+                            ) : (
+                              <Maximize className="w-5 h-5" />
+                            )}
                           </button>
                           <button
                             onClick={handleZoomIn}
