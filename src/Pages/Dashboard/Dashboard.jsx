@@ -1,14 +1,11 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
-  LayoutDashboard,
   Users,
   AlertTriangle,
   Camera,
   TrendingUp,
   ShieldCheck,
   Clock,
-  Activity,
   CameraOff
 } from "lucide-react";
 import newRequest from "../../utils/userRequest";
@@ -162,45 +159,6 @@ function Dashboard() {
     },
   ];
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "alert",
-      message: "No helmet detected in Production Area 1",
-      time: "2 min ago",
-      severity: "high"
-    },
-    {
-      id: 2,
-      type: "info",
-      message: "Camera 3 came back online",
-      time: "5 min ago",
-      severity: "low"
-    },
-    {
-      id: 3,
-      type: "alert",
-      message: "Unauthorized access attempt at Gate 2",
-      time: "12 min ago",
-      severity: "high"
-    },
-    {
-      id: 4,
-      type: "success",
-      message: "Safety inspection completed - Zone A",
-      time: "25 min ago",
-      severity: "low"
-    }
-  ];
-
-  const cameraStatus = [
-    { name: "Camera 1", status: "online", location: "Production Area 1" },
-    { name: "Camera 2", status: "online", location: "Production Area 2" },
-    { name: "Camera 3", status: "offline", location: "Warehouse" },
-    { name: "Camera 4", status: "online", location: "Loading Dock" },
-    { name: "Camera 5", status: "online", location: "Main Entrance" }
-  ];
-
   const getColorClasses = (color) => {
     const colors = {
       blue: {
@@ -293,135 +251,9 @@ function Dashboard() {
           })}
         </motion.div>
 
-        {/* Main Content Grid */}
-        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6"> */}
-        {/* Recent Activity */}
-        {/* <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">
-                Recent Activity
-              </h2>
-              <button className="text-blue-600 hover:text-blue-700 font-medium text-sm">
-                View All →
-              </button>
-            </div>
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
-                >
-                  <div
-                    className={`p-2 rounded-lg ${
-                      activity.severity === "high"
-                        ? "bg-red-100"
-                        : activity.type === "success"
-                          ? "bg-green-100"
-                          : "bg-blue-100"
-                    }`}
-                  >
-                    {activity.type === "alert" && (
-                      <AlertTriangle
-                        className={`w-5 h-5 ${
-                          activity.severity === "high"
-                            ? "text-red-600"
-                            : "text-blue-600"
-                        }`}
-                      />
-                    )}
-                    {activity.type === "info" && (
-                      <Camera className="w-5 h-5 text-blue-600" />
-                    )}
-                    {activity.type === "success" && (
-                      <ShieldCheck className="w-5 h-5 text-green-600" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-slate-700 font-medium">
-                      {activity.message}
-                    </p>
-                    <p className="text-slate-400 text-sm mt-1">
-                      {activity.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div> */}
-
-        {/* Camera Status */}
-        {/* <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-lg p-6"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">
-                Camera Status
-              </h2>
-              <Activity className="w-5 h-5 text-slate-400" />
-            </div>
-
-            {healthLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Spinner size="lg" color="primary" />
-              </div>
-            ) : cameras.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-                <CameraOff className="w-12 h-12 mb-3 text-slate-400" />
-                <p className="font-medium">No cameras found</p>
-                <p className="text-sm text-slate-400">
-                  No camera data is available.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {cameras.map((camera, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-slate-50 rounded-xl"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-3 h-3 rounded-full ${
-                          camera.status === "online"
-                            ? "bg-green-500"
-                            : "bg-red-500"
-                        }`}
-                      />
-                      <div>
-                        <p className="text-slate-700 font-medium text-sm">
-                          {camera.name}
-                        </p>
-                        <p className="text-slate-400 text-xs">
-                          {camera.location}
-                        </p>
-                      </div>
-                    </div>
-                    <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        camera.status === "online"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {camera.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </motion.div> */}
+       
         {healthLoading ? (
-          // <div className="flex items-center justify-center py-12">
-          //   <Spinner size="lg" color="primary" />
-          // </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, index) => (
               <motion.div
