@@ -96,6 +96,27 @@ function Dashboard() {
   const incidentTrend =
     incidentDifference > 0 ? "up" : incidentDifference < 0 ? "down" : "same";
 
+  const TOTAL_WORKERS = 500;
+
+  // Safety Score = (workers without incidents today / total workers) * 100
+  const safetyScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(((TOTAL_WORKERS - todayIncidents) / TOTAL_WORKERS) * 100),
+    ),
+  );
+
+  const yesterdaySafetyScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(((TOTAL_WORKERS - yesterdayIncidents) / TOTAL_WORKERS) * 100),
+    ),
+  );
+
+  const safetyScoreChange = safetyScore - yesterdaySafetyScore;
+
   const stats = [
     {
       title: "Total Cameras",
@@ -119,7 +140,7 @@ function Dashboard() {
     },
     {
       title: "Workers On-Site",
-      value: "156",
+      value: `${TOTAL_WORKERS}`,
       change: "+12",
       changeType: "positive",
       icon: Users,
@@ -128,9 +149,13 @@ function Dashboard() {
     },
     {
       title: "Safety Score",
-      value: "94%",
-      change: "+3%",
-      changeType: "positive",
+      value: `${safetyScore}%`,
+      loading: alertLoading,
+      change:
+        safetyScoreChange === 0
+          ? "0%"
+          : `${safetyScoreChange > 0 ? "+" : ""}${safetyScoreChange}%`,
+      changeType: safetyScoreChange >= 0 ? "positive" : "negative",
       icon: ShieldCheck,
       color: "purple",
       description: "Overall compliance",
