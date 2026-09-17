@@ -2,13 +2,13 @@ import {
   ChevronUp,
   LayoutDashboard, 
   Eye, 
-  Calendar, 
+  // Calendar, 
   AlertTriangle, 
-  Monitor, 
-  FileText,
+  // Monitor, 
+  // FileText,
   Mail,
-  MessageCircle,
-  Settings,
+  // MessageCircle,
+  // Settings,
   LogOut,
   UserRound
 } from 'lucide-react';
@@ -43,11 +43,11 @@ const Sidebar = () => {
       path: "/Alert",
       // notification: "2"
     },
-    // {
-    //   icon: Mail,
-    //   label: "Email",
-    //   path: "/email",
-    // },
+    {
+      icon: Mail,
+      label: "Email",
+      path: "/email",
+    },
     // {
     //   icon: MessageCircle,
     //   label: "WhatsApp",
