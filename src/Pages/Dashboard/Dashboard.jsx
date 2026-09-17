@@ -502,7 +502,7 @@ function Dashboard() {
                         location: camera.location
                       }
                     })
-                  } className=" cursor-pointer mt-3 bg-blue-500 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">View</p>
+                  } className=" cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 text-sm">View</p>
                 </div>
                 </div>
               </motion.div>
