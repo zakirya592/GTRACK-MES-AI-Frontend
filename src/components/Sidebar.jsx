@@ -43,26 +43,26 @@ const Sidebar = () => {
       path: "/Alert",
       // notification: "2"
     },
-    {
-      icon: Mail,
-      label: "Email",
-      path: "/email",
-    },
-    {
-      icon: MessageCircle,
-      label: "WhatsApp",
-      path: "/whatsapp",
-    },
+    // {
+    //   icon: Mail,
+    //   label: "Email",
+    //   path: "/email",
+    // },
+    // {
+    //   icon: MessageCircle,
+    //   label: "WhatsApp",
+    //   path: "/whatsapp",
+    // },
     // {
     //   icon: Monitor,
     //   label: "Devices",
     //   path: "/devices",
     // },
-    {
-      icon: FileText,
-      label: "Reports",
-      path: "/reports",
-    },
+    // {
+    //   icon: FileText,
+    //   label: "Reports",
+    //   path: "/reports",
+    // },
     // {
     //   icon: Settings,
     //   label: "Settings",
