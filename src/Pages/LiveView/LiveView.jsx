@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Camera, MapPin, Clock, AlertTriangle, ShieldCheck, Play, Loader2 } from "lucide-react";
 import { baseUrl } from "../../utils/config";
+import { startSnapshotPool } from "../../utils/cameraSnapshots";
 import newRequest from "../../utils/userRequest";
 import { fetchDetectionAlerts } from "../../utils/detectionAlerts";
 import { useQuery } from "@tanstack/react-query";
@@ -43,6 +44,44 @@ const {
         hasFrame: camera.has_frame,
       }))
     : [];
+
+  const [previewFrames, setPreviewFrames] = useState({});
+  const previewUrls = useRef({});
+  const onlineCameras = cameras
+    .filter((camera) => camera.status === "online" && camera.imagecamera)
+    .map((camera) => ({ id: camera.id, url: camera.imagecamera }));
+  const onlineKey = onlineCameras.map((camera) => `${camera.id}\t${camera.url}`).join("\n");
+
+  useEffect(() => {
+    const sources = onlineKey
+      ? onlineKey.split("\n").map((row) => {
+          const tab = row.indexOf("\t");
+          return { id: Number(row.slice(0, tab)), url: row.slice(tab + 1) };
+        })
+      : [];
+
+    if (sources.length === 0) return undefined;
+
+    const controller = new AbortController();
+    startSnapshotPool(
+      sources,
+      (id, blob) => {
+        const nextUrl = URL.createObjectURL(blob);
+        const previous = previewUrls.current[id];
+        previewUrls.current[id] = nextUrl;
+        if (previous) URL.revokeObjectURL(previous);
+        setPreviewFrames((current) => ({ ...current, [id]: nextUrl }));
+      },
+      controller.signal,
+    );
+
+    return () => {
+      controller.abort();
+      Object.values(previewUrls.current).forEach((url) => URL.revokeObjectURL(url));
+      previewUrls.current = {};
+      setPreviewFrames({});
+    };
+  }, [onlineKey]);
 
   const { data: alertPage, isLoading } = useQuery({
       queryKey: ["detection-alerts", "live"],
@@ -237,21 +276,24 @@ const {
                 key={camera.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 * index }}
+                transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.24) }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
               >
-                {/* Camera Feed Placeholder */}
                 <div
                   className={`relative h-48 ${camera.status === "offline" ? "bg-slate-200" : "bg-linear-to-br from-slate-100 to-slate-200"} flex items-center justify-center`}
                 >
                   {camera.status === "online" ? (
                     <>
-                      <img
-                        src={camera.imagecamera}
-                        alt="Live AI camera detection stream"
-                        className="max-h-130 w-full object-contain"
-                      />
+                      {previewFrames[camera.id] ? (
+                        <img
+                          src={previewFrames[camera.id]}
+                          alt={`${camera.name} preview`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+                      )}
                       <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                         LIVE
